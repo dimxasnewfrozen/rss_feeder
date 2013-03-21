@@ -48,13 +48,10 @@ $_SESSION['list'] = array();
 
         <script src="js/vendor/modernizr-2.6.2-respond-1.1.0.min.js"></script>
 		
-
-		
-		
     </head>
 
 
-    <body onload="initialize()">
+    <body>
         <!--[if lt IE 7]>
             <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
         <![endif]-->
@@ -73,7 +70,7 @@ $_SESSION['list'] = array();
 					
                     <div class="nav-collapse collapse">
                         <ul class="nav">
-                            <li class="active"><a href="#">Home</a></li>
+                            <li class="active"><a href="index.php">Home</a></li>
 							<!--
                             <li><a href="#about">About</a></li>
                             <li><a href="#contact">Contact</a></li>
@@ -146,6 +143,73 @@ $_SESSION['list'] = array();
 					if (@$_GET['u']){
 						?><iframe class='rss_content' src="<?php echo @$_GET['u']; ?>" style="width:100%; margin:-10px;" frameborder='0'></iframe><?php
 					}
+					else {
+					
+					
+					?>
+						<div class="row-fluid">
+					<?php
+							
+								
+
+								$sources = array(array("url" => "http://feeds.wired.com/wired/index", "type" => "tech"),
+												 array("url" => "http://feeds.arstechnica.com/arstechnica/index", "type" => "tech"),
+												 array("url" => "http://feeds.feedburner.com/hackaday/LgoM?format=xml", "type" => "tech"),
+												 array("url" => "http://rss.cnn.com/rss/cnn_topstories.rss", "type" => "news"),
+												 array("url" => "http://rss.cnn.com/rss/cnn_tech.rss", "type" => "tech"),
+												 array("url" => "http://www.burlingtonfreepress.com/section/RSS", "type" => "news"),
+												 array("url" => "http://sports.espn.go.com/espn/rss/news", "type" => "sports"));
+									
+								$selection_type = @$_GET['t'];
+
+
+								if ($selection_type != '') {
+									if ($selection_type != 'all') 
+									{
+
+										foreach ($sources as $source => $type) {
+											
+											if ($selection_type != $type['type']) 
+											{
+												unset($sources[$source]);
+											}
+										}
+									}
+								}
+
+								foreach ($sources as $source => $type) 
+								{
+
+									$content = file_get_contents($type['url']);  
+									$x = new SimpleXmlElement($content);  
+									
+									$rand = array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f');
+									$color = '#'.$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)];
+
+									foreach($x->channel->item as $entry) {
+											$title = $entry->title;
+												?>
+													<div style="margin:10px; float:left; width:250px; height:200px;">
+													<h3><b style="color:<?php echo $color; ?>"><?php echo $x->channel->title; ?></b></h3>
+													<p>
+													<h4><a href='index.php?t=<?php echo $selection_type; ?>&u=<?php echo $entry->guid; ?>'><?php echo $entry->title; ?></a></h4>
+													<i style='font-size:10px;'><?php echo str_replace("+0000", "", $entry->pubDate); ?></i> <br/>
+													
+													
+													<a href='' class='share'><i class='icon-thumbs-up'></i>  </a>
+													<a href='' class='share'><i class='icon-facebook'></i>   </a>
+													<a href='' class='share'><i class='icon-twitter'></i> </a> 
+													</p>
+													
+													</div>
+												<?php
+												
+											
+										
+									}
+								}
+							?></div><?php
+					}
 				  ?>
 			</div>
 			
@@ -166,9 +230,7 @@ $_SESSION['list'] = array();
 			//});
 			
 			var height = $(window).height();
-			var sidebar_width = $(".sidebar").width()
-			
-			$(".sidebar").css('height', height - 80);
+		
 			
 			//$(".main_content").css('margin-left', sidebar_width + 40);
 			
@@ -201,7 +263,5 @@ $_SESSION['list'] = array();
 		</script>
 
         <script src="js/vendor/bootstrap.min.js"></script>
-
-        <script src="js/main.js"></script>
     </body>
 </html>

@@ -31,7 +31,10 @@ if ($selection_type != '') {
 		}
 	}
 }
-		
+
+$array_size = sizeof($sources);
+$lt = generateListNum($array_size);
+
 foreach ($sources as $source => $type) 
 {
 
@@ -40,12 +43,12 @@ foreach ($sources as $source => $type)
 	
 	$rand = array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f');
 	$color = '#'.$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)];
-	
+
 	$c = 0;
-	
+
 	foreach($x->channel->item as $entry) {  
 		
-		if ($c < 1) {
+		if ($c < $lt) {
 		
 
 		if (in_array((string)$entry->title, $_SESSION['list'])) 
@@ -75,6 +78,35 @@ foreach ($sources as $source => $type)
 		}
 		$c++;
 	}
-	
 }
+
+
+function generateListNum($size) 
+{
+	switch($size) 
+	{
+		case 1:
+			return 4;
+		break;
+		case 2:
+			return 3;
+		break;
+		case 3:
+			return 2;
+		break;
+		case 4:
+			return 2;
+		break;
+		case 5:
+			return 1;
+		break;
+		default:
+			return 1;
+		break;
+		
+	
+	}
+
+}
+
 ?>
