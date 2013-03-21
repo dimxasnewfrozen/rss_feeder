@@ -1,22 +1,41 @@
 <?php
 session_start();
 
-if ($_SESSION['list'] == '')
-	$new = "<b><font style='color:green;'> New! </b>";
-else
+if (empty($_SESSION['list']))
 	$new = "";
+else
+	$new = "<i class='icon-star icon-spin' style='color:#63B82A;'></i>";
+	
 
-$sources = array("http://feeds.wired.com/wired/index", 
-				"http://feeds.arstechnica.com/arstechnica/index", 
-				"http://feeds.feedburner.com/hackaday/LgoM?format=xml",
-				"http://rss.cnn.com/rss/cnn_topstories.rss",
-				"http://rss.cnn.com/rss/cnn_tech.rss",
-				"http://www.burlingtonfreepress.com/section/RSS");
-				
-foreach ($sources as $source) 
+$sources = array(array("url" => "http://feeds.wired.com/wired/index", "type" => "tech"),
+				 array("url" => "http://feeds.arstechnica.com/arstechnica/index", "type" => "tech"),
+				 array("url" => "http://feeds.feedburner.com/hackaday/LgoM?format=xml", "type" => "tech"),
+				 array("url" => "http://rss.cnn.com/rss/cnn_topstories.rss", "type" => "news"),
+				 array("url" => "http://rss.cnn.com/rss/cnn_tech.rss", "type" => "tech"),
+				 array("url" => "http://www.burlingtonfreepress.com/section/RSS", "type" => "news"),
+				 array("url" => "http://sports.espn.go.com/espn/rss/news", "type" => "sports"));
+	
+$selection_type = @$_GET['t'];
+
+
+if ($selection_type != '') {
+	if ($selection_type != 'all') 
+	{
+
+		foreach ($sources as $source => $type) {
+			
+			if ($selection_type != $type['type']) 
+			{
+				unset($sources[$source]);
+			}
+		}
+	}
+}
+		
+foreach ($sources as $source => $type) 
 {
 
-	$content = file_get_contents($source);  
+	$content = file_get_contents($type['url']);  
 	$x = new SimpleXmlElement($content);  
 	
 	$rand = array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f');
@@ -36,18 +55,26 @@ foreach ($sources as $source)
 		{
 			$title = $entry->title;
 			
-			$_SESSION['list'][] =  (string)$title;
+			$_SESSION['list'][] = (string)$title;
 				
 				?>
-					<?php echo $new; ?><b style="color:<?php echo $color; ?>"><?php echo $x->channel->title; ?></b> <br/>
-					<a href='index.php?u=<?php echo $entry->guid; ?>'><?php echo $entry->title; ?></a><br/>
-					<i style='font-size:10px;'><?php echo str_replace("+0000", "", $entry->pubDate); ?></i>
-					<hr>
+					<?php echo $new; ?> <b style="color:<?php echo $color; ?>"><?php echo $x->channel->title; ?></b> <br/>
+					<a href='index.php?t=<?php echo $selection_type; ?>&u=<?php echo $entry->guid; ?>'><?php echo $entry->title; ?></a><br/>
+					<i style='font-size:10px;'><?php echo str_replace("+0000", "", $entry->pubDate); ?></i> <br/>
+					
+					
+					<a href='' class='share'><i class='icon-thumbs-up'></i>  </a>
+					<a href='' class='share'><i class='icon-facebook'></i>   </a>
+					<a href='' class='share'><i class='icon-twitter'></i> </a> 
+
+					
+					<hr style="margin-top:5px;">
 				<?php
 				
 			}
 		}
 		$c++;
 	}
+	
 }
 ?>

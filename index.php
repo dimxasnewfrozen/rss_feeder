@@ -25,14 +25,25 @@ $_SESSION['list'] = array();
             }
 			
 			.sidebar{
-			overflow:auto;
-			position:fixed;
+				overflow:auto;
 			}
-
+		
+			a.share {
+				padding-right:5px;
+				color:#4970B3;
+				text-decoration:none;
+				font-size:14px;
+			}
+			
+			a.share:hover{
+				color:#4086FF;
+				font-size:15px;
+			}
 
         </style>
         <link rel="stylesheet" href="css/bootstrap-responsive.min.css">
         <link rel="stylesheet" href="css/main.css">
+        <link rel="stylesheet" href="css/font-awesome.css">
 		<link href="css/jquery.mCustomScrollbar.css" rel="stylesheet" />
 
         <script src="js/vendor/modernizr-2.6.2-respond-1.1.0.min.js"></script>
@@ -58,10 +69,12 @@ $_SESSION['list'] = array();
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </a>
-                    <a class="brand" href="#">Project name</a>
+                    <a class="brand" href="#">KFeed</a>
+					
                     <div class="nav-collapse collapse">
                         <ul class="nav">
                             <li class="active"><a href="#">Home</a></li>
+							<!--
                             <li><a href="#about">About</a></li>
                             <li><a href="#contact">Contact</a></li>
                             <li class="dropdown">
@@ -76,13 +89,19 @@ $_SESSION['list'] = array();
                                     <li><a href="#">One more separated link</a></li>
                                 </ul>
                             </li>
+							-->
                         </ul>
+						<!--
                         <form class="navbar-form pull-right">
                             <input class="span2" type="text" placeholder="Email">
                             <input class="span2" type="password" placeholder="Password">
                             <button type="submit" class="btn">Sign in</button>
                         </form>
+						-->
                     </div><!--/.nav-collapse -->
+					
+					
+					
                 </div>
             </div>
         </div>
@@ -92,24 +111,40 @@ $_SESSION['list'] = array();
 		
 		<div class="container-fluid" style="height:100%;">
 		  <div class="row-fluid" style="height:100%;">
-			<div class="span2 sidebar" >
-			  <!--Sidebar content-->
-					<div class='loading hide'><i>Loading...</i></div>
+			<div class="span2" >
+				<?php
+					$link = (!@$_GET['u']) ? '' : $_GET['u'];
+					$type = @$_GET['t'];
+				  ?>
+					<input type='hidden' class='type' value="<?php echo $type; ?>" />
 					
-						
+					<div style="margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid #EDEDED; ">
+					<div class="btn-group ">
+					  <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
+						<i class='icon-filter'></i>
+						<span class="caret"></span>
+					  </a>
+					  <ul class="dropdown-menu">
+						  <li class="<?php echo ($type == 'all' || $type == '') ? 'active' : ''; ?>"><a href='index.php?t=all&u=<?php echo $link; ?>'>All</a></li>
+						  <li class="<?php echo ($type == 'news') ? 'active' : ''; ?>"><a href='index.php?t=news&u=<?php echo $link; ?>'>News</a></li>
+						  <li class=" <?php echo ($type == 'sports') ? 'active' : ''; ?>"><a href='index.php?t=sports&u=<?php echo $link; ?>'>Sports</a></li>
+						  <li class="<?php echo ($type == 'tech') ? 'active' : ''; ?>"><a href='index.php?t=tech&u=<?php echo $link; ?>'>Tech</a></li>
+					  </ul>
+					</div>
+					</div>
+
+				<div class="sidebar" >
+					<!--Sidebar content-->
+					<i class="icon-spinner icon-spin"></i> Loading content...
+				</div>
 			</div>
 			
 			
 			<div class="span10 main_content">
 				  <!--Body content-->
-					
 				  <?php
 					if (@$_GET['u']){
-					
-					?><iframe class='rss_content' src="<?php echo @$_GET['u']; ?>" style="width:100%; margin:-10px;" frameborder='0'></iframe><?php
-					
-					
-					
+						?><iframe class='rss_content' src="<?php echo @$_GET['u']; ?>" style="width:100%; margin:-10px;" frameborder='0'></iframe><?php
 					}
 				  ?>
 			</div>
@@ -125,22 +160,17 @@ $_SESSION['list'] = array();
 		$(function() {
 			
 			//$(".entry_link").click(function () {
-				
 				//var location = $(this).attr("link_location");
-				
 				//alert(location);
-				
 				//$(".rss_content").load("localhost/rss/index.php?u=http://www.google.com);
-				
-				
-				
 			//});
+			
 			var height = $(window).height();
 			var sidebar_width = $(".sidebar").width()
 			
 			$(".sidebar").css('height', height - 80);
 			
-			$(".main_content").css('margin-left', sidebar_width + 40);
+			//$(".main_content").css('margin-left', sidebar_width + 40);
 			
 			$(".sidebar").mCustomScrollbar({
 				scrollButtons:{
@@ -149,28 +179,23 @@ $_SESSION['list'] = array();
 			});
 
 			
-			$(".sidebar").load("source.php");
-			
-			
+			var type = $(".type").val();
+			$(".sidebar").load("source.php?t=" + type);
+  
+  
 			setInterval(function() {
 				
 				$(".loading").show();
-				//$(".sidebar").prepend($("<div>")).load("source.php");
-				$.get('source.php', function(data){ 
+				
+				$.get('source.php?t=' + type, function(data){ 
 				  $(".sidebar").prepend(data);
 				});
 				
-				
 				$(".loading").hide();
 			}, 15000);
-			
-		
-				
+
 			$('.rss_content').css('height', height * 5);
-			
-			
-			
-			
+
 		});
 		
 		</script>
