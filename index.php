@@ -63,7 +63,7 @@ $_SESSION['list'] = array();
 			
 			var $search = $('.search').val();
 			
-			$(".main_content").load("source.php?s=" + $search + "&t=" + type, function() {
+			$(".main_content").load("source.php?s=" + encodeURIComponent($search) + "&t=" + type, function() {
 				$container.masonry({
 				  itemSelector: '.container_item',
 				  columnWidth: 140
@@ -75,7 +75,7 @@ $_SESSION['list'] = array();
 				
 				$(".loading").show();
 				
-				$.get('source.php?s=' + $search + '&t=' + type, function(data){ 
+				$.get('source.php?s=' + encodeURIComponent($search) + '&t=' + type, function(data){ 
 				  $container.prepend( data ).masonry( 'reload' );
 				});
 				
@@ -139,7 +139,7 @@ $_SESSION['list'] = array();
 					$type = @$_GET['t'];
 				  ?>
 					<input type='hidden' class='type' value="<?php echo $type; ?>" />
-					<input type='hidden' class='search' value="<?php echo @$_GET['s']; ?>" />
+					<input type='hidden' class='search' value="<?php echo urlencode(@$_GET['s']); ?>" />
 					
 					<div style="margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid #EDEDED; ">
 					<div class="btn-group ">
