@@ -6,15 +6,23 @@ if (empty($_SESSION['list']))
 else
 	$new = "<i class='icon-star icon-spin' style='color:#63B82A;'></i>";
 	
-
-$sources = array(array("url" => "http://feeds.wired.com/wired/index", "type" => "tech"),
+if (@$_GET['s']) {
+	$sources = array(array("url" => "http://news.google.com/news?q=" . $_GET['s'] . "&output=rss", "type" => "tech"));
+}
+else {
+	$sources = array(array("url" => "http://feeds.wired.com/wired/index", "type" => "tech"),
 				 array("url" => "http://feeds.arstechnica.com/arstechnica/index", "type" => "tech"),
 				 array("url" => "http://feeds.feedburner.com/hackaday/LgoM?format=xml", "type" => "tech"),
 				 array("url" => "http://rss.cnn.com/rss/cnn_topstories.rss", "type" => "news"),
+				 array("url" => "http://feeds.feedburner.com/cnet/tcoc", "type" => "tech"),
 				 array("url" => "http://rss.cnn.com/rss/cnn_tech.rss", "type" => "tech"),
 				 array("url" => "http://www.burlingtonfreepress.com/section/RSS", "type" => "news"),
-				 array("url" => "http://sports.espn.go.com/espn/rss/news", "type" => "sports"));
-	
+				 array("url" => "http://sports.espn.go.com/espn/rss/news", "type" => "sports"),
+				 array("url" => "http://feeds.nbcnews.com/feeds/topstories", "type" => "news"),
+				 array("url" => "http://www.hardocp.com/RSS/all_hardocp.xml", "type" => "tech")
+		);
+}
+
 $selection_type = @$_GET['t'];
 
 
@@ -33,7 +41,14 @@ if ($selection_type != '') {
 }
 
 $array_size = sizeof($sources);
+
 $lt = generateListNum($array_size);
+
+if (@$_GET['s'])
+	$lt = 6;
+else
+	$lt = 2;
+
 
 foreach ($sources as $source => $type) 
 {
@@ -45,7 +60,7 @@ foreach ($sources as $source => $type)
 	$color = '#'.$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)];
 
 	$c = 0;
-
+	
 	foreach($x->channel->item as $entry) {  
 		
 		if ($c < $lt) {
@@ -60,18 +75,43 @@ foreach ($sources as $source => $type)
 			
 			$_SESSION['list'][] = (string)$title;
 				
-				?>
-					<?php echo $new; ?> <b style="color:<?php echo $color; ?>"><?php echo $x->channel->title; ?></b> <br/>
-					<a href='index.php?t=<?php echo $selection_type; ?>&u=<?php echo $entry->guid; ?>'><?php echo $entry->title; ?></a><br/>
+				?>	
+				 <div class='container_item' style="width: 220px; margin: 10px; float: left;">
+	  
+
+					<?php echo $new; ?> <b style="color:<?php echo $color; ?>"><?php echo $x->channel->title; ?>
+					</b> <br/>
+					<?php
+						/*
+						$html = file_get_contents($entry->guid);  
+						$doc = new DOMDocument();
+						@$doc->loadHTML($html);
+
+						$tags = $doc->getElementsByTagName('img');
+
+						foreach ($tags as $tag) {
+								
+							   echo "<img src='" . $tag->getAttribute('src') . "' /><br/>";
+						}
+						*/
+					?>
+					<a href='<?php echo $entry->guid; ?>' target='_blank'><?php echo $entry->title; ?></a><br/>
+					<?php echo $entry->description; ?><br/>
+					
 					<i style='font-size:10px;'><?php echo str_replace("+0000", "", $entry->pubDate); ?></i> <br/>
 					
 					
-					<a href='' class='share'><i class='icon-thumbs-up'></i>  </a>
-					<a href='' class='share'><i class='icon-facebook'></i>   </a>
-					<a href='' class='share'><i class='icon-twitter'></i> </a> 
-
+					<?php
 					
-					<hr style="margin-top:5px;">
+						$twitterLink = "http://twitter.com/share?text=" . $entry->title . "&url=" .urlencode($entry->guid);
+						$facebookLink = "http://www.facebook.com/sharer.php?u=" . urlencode($entry->guid);
+					?>
+					
+					<a href="" class='share' target="_blank"><i class='icon-thumbs-up'></i>  </a>
+					<a href='<?php echo $facebookLink; ?>' class='share' target="_blank"><i class='icon-facebook'></i>   </a> 
+					<a href="<?php echo $twitterLink; ?>" class='share' target="_blank"><i class='icon-twitter'></i>  </a>
+					<hr style="margin-top:5px; margin-bottom:-10px;">
+				</div>
 				<?php
 				
 			}
