@@ -25,6 +25,7 @@ else {
 
 $selection_type = @$_GET['t'];
 
+
 if ($selection_type != '') {
 	if ($selection_type != 'all') 
 	{
@@ -48,103 +49,84 @@ if (@$_GET['s'])
 else
 	$lt = 2;
 
-	
-// for particular rss feed:
-if (@$_GET['view']) {
-	
-	
-	/* the namespace of rss "content" */
-	$content_ns = "http://purl.org/rss/1.0/modules/content/";
 
-	$content = file_get_contents($_GET['view']);  
-	$x 		 = new SimpleXmlElement($content);  
+foreach ($sources as $source => $type) 
+{
 
-	$root = $x->channel; /* our root element */
+	$content = file_get_contents($type['url']);  
+	$x = new SimpleXmlElement($content);  
 	
+	$rand = array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f');
+	$color = '#'.$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)];
+
+	$c = 0;
 	
-	
-	foreach($root->item as $entry) {
-	
-		$title = $entry->title;
+	foreach($x->channel->item as $entry) {  
 		
-		/* loop over every item in the channel */
-		?>
-		<div class='container_item' style="width: 90%; max-height:500px; overflow:auto; margin: 10px; float: left; background-color:#EDEDED; padding:30px; border:1px solid #D4D4D4;">
-		
-		<h4><?php echo $title; ?></h4>
-		
-		<?php
+		if ($c < $lt) {
 		
 
-	
-			/* loop over all children in the "content" namespace */
-		echo ($entry->children($content_ns) == '') ? $entry->description : $entry->children($content_ns);
-		
-		
-		?>
-		</div>
-		<?php
-	}
-		
-	
-}
-else {
-
-	foreach ($sources as $source => $type) 
-	{
-		$content = file_get_contents($type['url']);  
-		$x = new SimpleXmlElement($content);  
-		
-		$rand = array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f');
-		$color = '#'.$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)];
-
-		$c = 0;
-		
-		foreach($x->channel->item as $entry) {  
+		if (in_array((string)$entry->title, $_SESSION['list'])) 
+		{
+		}
+		else 
+		{
+			$title = $entry->title;
 			
-			if ($c < $lt) {
+			$_SESSION['list'][] = (string)$title;
 			
+			
+				if (@$_GET['s']) {
+				?>
+                	<div class='container_item' style="width:44%; margin: 5px; margin-bottom:10px; float:left; background-color:#F2F2F2; border:1px solid #E0E0E0; padding:12px;">
+                <?php
+				}
+				else {
+				?>
+                	<div class='container_item' style="width:240px; margin: 5px; float:left; background-color:#F2F2F2; border:1px solid #E0E0E0; padding:12px;">
+                <?php
+				}
 
-			
-			if (in_array((string)$entry->title, $_SESSION['list'])) 
-			{
-			}
-			else 
-			{
-				$title = $entry->title;
-				
-				$_SESSION['list'][] = (string)$title;
+				    echo $new; ?> <b style="color:<?php echo $color; ?>"><?php echo $x->channel->title; ?>
+					</b> <br/>
+					<?php
+						/*
+						$html = file_get_contents($entry->guid);  
+						$doc = new DOMDocument();
+						@$doc->loadHTML($html);
+
+						$tags = $doc->getElementsByTagName('img');
+
+						foreach ($tags as $tag) {
+								
+							   echo "<img src='" . $tag->getAttribute('src') . "' /><br/>";
+						}
+						*/
+					?>
+					<a href='<?php echo $entry->guid; ?>' target='_blank'><?php echo $entry->title; ?></a><br/>
+					<?php echo $entry->description; ?><br/>
 					
-					?>	
-					 <div class='container_item' style="width: 220px; margin: 10px; float: left;">
-						<?php echo $new; ?> <b style="color:<?php echo $color; ?>"><?php echo $x->channel->title; ?>
-						</b> 
-						<br/>
-						
-						<a href='<?php echo $entry->guid; ?>' target='_blank'><?php echo $entry->title; ?></a><br/>
-						<?php echo $entry->description; ?><br/>
-						
-						<i style='font-size:10px;'><?php echo str_replace("+0000", "", $entry->pubDate); ?></i> <br/>
-						
-						<?php
-						
-							$twitterLink = "http://twitter.com/share?text=" . $entry->title . "&url=" .urlencode($entry->guid);
-							$facebookLink = "http://www.facebook.com/sharer.php?u=" . urlencode($entry->guid);
-						?>
-						
-						<a href="" class='share' target="_blank"><i class='icon-thumbs-up'></i>  </a>
-						<a href='<?php echo $facebookLink; ?>' class='share' target="_blank"><i class='icon-facebook'></i>   </a> 
-						<a href="<?php echo $twitterLink; ?>" class='share' target="_blank"><i class='icon-twitter'></i>  </a>
-						<hr style="margin-top:5px; margin-bottom:-10px;">
-					</div>
+					<i style='font-size:10px;'><?php echo str_replace("+0000", "", $entry->pubDate); ?></i> <br/>
+					
+					
 					<?php
 					
-				}
+						$twitterLink = "http://twitter.com/share?text=" . $entry->title . "&url=" .urlencode($entry->guid);
+						$facebookLink = "http://www.facebook.com/sharer.php?u=" . urlencode($entry->guid);
+					?>
+					
+					<a href="" class='share' target="_blank"><i class='icon-thumbs-up'></i>  </a>
+					<a href='<?php echo $facebookLink; ?>' class='share' target="_blank"><i class='icon-facebook'></i>   </a> 
+					<a href="<?php echo $twitterLink; ?>" class='share' target="_blank"><i class='icon-twitter'></i>  </a>
+				</div>
+				<?php
+				
 			}
-			$c++;
 		}
+		$c++;
 	}
 }
+
 
 function generateListNum($size) 
 {

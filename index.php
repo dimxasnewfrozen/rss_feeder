@@ -57,13 +57,13 @@ $_SESSION['list'] = array();
 
 			var height = $(window).height();
 		
+			var type = $(".type").val();
+			
 			var $container = $('.main_content');
 			
-			var $type 	= $(".type").val();
 			var $search = $('.search').val();
-			var $view   = $('.view').val();
 			
-			$(".main_content").load('source.php?view=' + $view + '&s=' + encodeURIComponent($search) + '&t=' + $type, function() {
+			$(".main_content").load("source.php?s=" + encodeURIComponent($search) + "&t=" + type, function() {
 				$container.masonry({
 				  itemSelector: '.container_item',
 				  columnWidth: 140
@@ -72,9 +72,10 @@ $_SESSION['list'] = array();
 			});
 		
 			setInterval(function() {
+				
 				$(".loading").show();
 				
-				$.get('source.php?view=' + $view + '&s=' + encodeURIComponent($search) + '&t=' + $type, function(data){ 
+				$.get('source.php?s=' + encodeURIComponent($search) + '&t=' + type, function(data){ 
 				  $container.prepend( data ).masonry( 'reload' );
 				});
 				
@@ -82,18 +83,7 @@ $_SESSION['list'] = array();
 			}, 15000);
 			
 			
-			$(window).scroll(function() {
-			   if($(window).scrollTop() + $(window).height() == $(document).height()) {
-					
-				    $(".loading_bottom").removeClass("hide");
-					
-					$.get('source.php?view=' + $view + '&s=' + encodeURIComponent($search) + '&t=' + $type, function(data){ 
-						$container.append( data ).masonry( 'reload' );
-					});
-					
-					$(".loading_bottom").addClass("hide");
-				}
-			});
+			
 			
 		});
 		
@@ -149,9 +139,7 @@ $_SESSION['list'] = array();
 					$type = @$_GET['t'];
 				  ?>
 					<input type='hidden' class='type' value="<?php echo $type; ?>" />
-					
 					<input type='hidden' class='search' value="<?php echo urlencode(@$_GET['s']); ?>" />
-					<input type='hidden' class='view' value="<?php echo urlencode(@$_GET['view']); ?>" />
 					
 					<div style="margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid #EDEDED; ">
 					<div class="btn-group ">
@@ -169,53 +157,21 @@ $_SESSION['list'] = array();
 					</div>
 
 				<div class="sidebar" >
-					
-				<?php
-					
-				$sources = array(array("url" => "http://feeds.wired.com/wired/index", "name" => "Wired"),
-						 array("url" => "http://feeds.arstechnica.com/arstechnica/index", "name" => "Ars Technica"),
-						 array("url" => "http://feeds.feedburner.com/hackaday/LgoM?format=xml", "name" => "Hackaday"),
-						 array("url" => "http://rss.cnn.com/rss/cnn_topstories.rss", "name" => "CNN"),
-						 array("url" => "http://feeds.feedburner.com/cnet/tcoc", "name" => "CNET"),
-						 array("url" => "http://rss.cnn.com/rss/cnn_tech.rss", "name" => "CNN Tech"),
-						 array("url" => "http://www.burlingtonfreepress.com/section/RSS", "name" => "Burlington Free Press"),
-						 array("url" => "http://sports.espn.go.com/espn/rss/news", "name" => "ESPN"),
-						 array("url" => "http://feeds.nbcnews.com/feeds/topstories", "name" => "NBC News"),
-						 array("url" => "http://www.hardocp.com/RSS/all_hardocp.xml", "name" => "HardOCP")
-				);
-				
-				?>
-				<ul class="nav nav-pills nav-stacked">
-				<?php
-				foreach ($sources as $source => $type) {
-					?>
-						
-						<li><a href='index.php?view=<?php echo $type['url']; ?>'> <?php echo $type['name']; ?></a></li>
-					
-					
-					<?php
-				}
-				?>
-				</ul>
 				</div>
-				
-				
 			</div>
 			
 			<div class="span10 main_content">
-				
-				<i class="icon-spinner icon-spin" style="font-size:20px;"></i> Loading content... 
+		
 				
 			</div>
 			
-			<div style="width:100%; margin:0 auto; position:fixed; bottom:0px; height:30px;" class="loading_bottom hide">
-				<center><i class="icon-spinner icon-spin" style="font-size:20px;"></i> Loading content... </center>
-			</div>
 		  </div>
-		  
-		  
 		</div>
 		
+		<div id="preview">
+		
+		</div>
+
 
         <script src="js/vendor/bootstrap.min.js"></script>
     </body>
